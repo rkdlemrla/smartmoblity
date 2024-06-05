@@ -1,16 +1,10 @@
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
+import myfunc as my
 
-def bmi_range(bmi):
-    if bmi >25: 
-        st.warning("비만입니다.")
-    elif 18.5 < bmi < 23:
-        st.info("정상입니다.")
-    elif 23 < bmi <25:
-        st.warning("과체중입니다.")
-    else:
-        st.warning("저체중입니다.")
+st.session_state.id = "김관우"
+st.write(st.session_state.id, "님 반갑습니다.")
         
 selected = st.sidebar.selectbox("목차", ("체질량계산기","갭마인더","국가별통계"))
 
@@ -30,7 +24,7 @@ if selected == "체질량계산기":
 
     if st.button("계산하기"):
         st.write(f"당신의 체질량지수는 {round(bmi,2)} 입니다.")
-        bmi_range(bmi)
+        my.bmi_range(bmi)
         st.balloons()
         
         st.image('ss.jpeg', caption='균형있는 식단이 필요합니다.')
@@ -55,3 +49,37 @@ if selected == "갭마인더":
     
 if selected == "국가별통계":
     st.title("국가별통계")    
+    
+    
+    df = pd.read_csv("gapminder.csv")
+    #st.write(df)
+    
+    country = df['country'].unique()
+    #st.write(country)
+    
+    options = st.multiselect(
+    "국가를 선택하세요.",
+    country,
+    ["Korea, Rep."])
+
+    st.write("You selected:", options[0])
+    
+    #x = options[0]
+    
+    #st.write(df[ df["country"] == x ]) 
+    
+    fig, ax = plt.subplots()
+    for x in options:
+        ax.plot(range(len(df[ df["country"] == x] ["year"])),df[ df["country"] == x] ["gdpPercap"],label=x)
+        ax.legend()
+        ax.set_xticks(range(len(df[df['country']==x]["pop"])),df[df['country']==x]['year'])
+        ax.set_title('Population Growth')
+    st.pyplot(fig)
+    
+    fig1, ax1 = plt.subplots()
+    for x in options:
+        ax1.plot(range(len(df[ df["country"] == x] ["lifeExp"])),df[ df["country"] == x] ["lifeExp"],label=x)
+        ax1.legend()
+        ax1.set_xticks(range(len(df[df['country']==x]['pop'])),df[df['country']==x]["year"])
+        ax1.set_title('Life Expectancy')
+    st.pyplot(fig1)
